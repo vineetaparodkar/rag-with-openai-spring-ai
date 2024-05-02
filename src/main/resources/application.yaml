@@ -1,0 +1,79 @@
+application:
+  title: RAG API Service
+  version: v1.0
+
+logging:
+  level:
+    ROOT: INFO
+
+# Server Configuration
+server:
+  port: 8080
+  host: localhost
+  servlet:
+    context-path: /rag
+
+# Spring Configurations
+spring:
+  application:
+    name: RAG
+  ai:
+    vectorstore:
+      qdrant:
+        host: <host of your qdrant instance>
+        port: <the GRPC port of your qdrant instance>
+        api-key: <your api key>
+        collection-name: <The name of the collection to use in Qdrant>
+    openai:
+      base-url:
+      api-key:
+      embedding:
+        enabled: true
+        base-url:
+        api-key:
+        options:
+          model: text-embedding-ada-002
+      chat:
+        options:
+          model: gpt-4-turbo-preview
+          temperature: 0.5
+          max-tokens: 800
+          top-p: 1
+          frequency-penalty: 0
+          api-key: ${clee}
+
+# OpenAPI Configurations
+openapi:
+  title: RAG API Service
+  version: v1.0
+  description: RAG API service
+  termsOfService:
+  contact:
+    email:
+    name:
+    url:
+  license:
+    name:
+    url:
+
+# Default Open API endpoint Specifications
+# api docs endpoint path
+springdoc:
+  api-docs.path: /v3/api-docs
+  # customise endpoint for Swagger UI
+  swagger-ui:
+    path: /swagger-ui
+    # disable default petstore Swagger
+    disable-swagger-default-url: true
+    # disable schemas/models in swagger ui
+    defaultModelsExpandDepth=-1:
+
+#web-config-origin-url
+web:
+  config:
+    allowed-origin-urls:
+      http://localhost:3000,
+      http://localhost:3001,
+      http://localhost:3002,
+    max-age: 3600
+
