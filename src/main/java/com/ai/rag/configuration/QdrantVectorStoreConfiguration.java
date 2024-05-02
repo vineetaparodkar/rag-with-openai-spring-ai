@@ -1,14 +1,21 @@
 package com.ai.rag.configuration;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.ai.autoconfigure.vectorstore.qdrant.QdrantVectorStoreProperties;
 import org.springframework.ai.embedding.EmbeddingClient;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.qdrant.QdrantVectorStore;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
-public class VectorDBConfiguration {
+
+@AutoConfiguration
+@ConditionalOnClass({ QdrantVectorStore.class, EmbeddingClient.class })
+@EnableConfigurationProperties(QdrantVectorStoreProperties.class)
+public class QdrantVectorStoreConfiguration {
 
     private final ApplicationProperties applicationProperties;
 
@@ -20,7 +27,7 @@ public class VectorDBConfiguration {
 
     private String apiKey;
 
-    public VectorDBConfiguration(ApplicationProperties applicationProperties) {
+    public QdrantVectorStoreConfiguration(ApplicationProperties applicationProperties) {
         this.applicationProperties = applicationProperties;
     }
 
@@ -34,18 +41,17 @@ public class VectorDBConfiguration {
     }
 
     @Bean
-    public QdrantVectorStore.QdrantVectorStoreConfig qdrantVectorStoreConfig() {
+    @ConditionalOnMissingBean
+    public VectorStore vectorStore(EmbeddingClient embeddingClient, QdrantVectorStoreProperties properties) {
 
-        return QdrantVectorStore.QdrantVectorStoreConfig.builder()
+        QdrantVectorStore.QdrantVectorStoreConfig config = QdrantVectorStore.QdrantVectorStoreConfig.builder()
+                .withCollectionName(properties.getCollectionName())
                 .withHost(hostname)
                 .withPort(port)
                 .withCollectionName(collectionName)
                 .withApiKey(apiKey)
                 .build();
-    }
 
-    @Bean
-    public VectorStore vectorStore(QdrantVectorStore.QdrantVectorStoreConfig config, EmbeddingClient embeddingClient) {
         return new QdrantVectorStore(config, embeddingClient);
     }
 }
