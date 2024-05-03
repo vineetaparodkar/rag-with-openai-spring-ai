@@ -2,7 +2,9 @@
 
 Retrieval-augmented generation (RAG) is a method that improves the precision and dependability of generative AI models by incorporating information obtained from external sources.
 
-This file contains instructions to build, configure and install Ecommerce API to demonstrate Ecommerce usecase.
+This file contains instructions to build, configure and install RAG API to demonstrate RAG QnA usecase.
+
+Refer article here, https://devbeat.hashnode.dev/retrieval-augmentation-generation-using-spring-ai
 
 ## Pre-requisites
 
