@@ -13,8 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.ai.document.Document;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,22 +36,43 @@ public class TextEmbeddingServiceImpl implements TextEmbeddingService {
                     }
                 })
                 .collect(Collectors.toList());
-        // Call another method to process resources or do the necessary logic here
         processResources(resources.toArray(new Resource[0]));
     }
 
     private void processResources(Resource[] resources) {
+//        PdfDocumentReaderConfig config = PdfDocumentReaderConfig.defaultConfig();
+//        String content = "";
+//        for (Resource resource : resources) {
+//            PagePdfDocumentReader pagePdfDocumentReader = new PagePdfDocumentReader(resource, config);
+//            List<Document> documentList = pagePdfDocumentReader.get();
+//            content += documentList.stream().map(d -> d.getContent()).collect(Collectors.joining("\n")) + "\n";
+//        }
+//
+//        TokenTextSplitter tokenTextSplitter = new TokenTextSplitter();
+//        List<String> chunks = tokenTextSplitter.split(content, 1000);
+//        List<Document> chunksDocs = chunks.stream().map(chunk -> new Document(chunk)).collect(Collectors.toList());
+//        vectorStore.accept(chunksDocs);
+
+
         PdfDocumentReaderConfig config = PdfDocumentReaderConfig.defaultConfig();
-        String content = "";
+        List<Document> chunksDocs = new ArrayList<>();
+        TokenTextSplitter tokenTextSplitter = new TokenTextSplitter();
         for (Resource resource : resources) {
             PagePdfDocumentReader pagePdfDocumentReader = new PagePdfDocumentReader(resource, config);
             List<Document> documentList = pagePdfDocumentReader.get();
-            content += documentList.stream().map(d -> d.getContent()).collect(Collectors.joining("\n")) + "\n";
+            for (Document document : documentList) {
+                String content = document.getContent();
+                List<String> chunks = tokenTextSplitter.split(content, 1000); // Split content into chunks
+                Map<String, Object> documentMetadata = document.getMetadata(); // Get page number
+                int chunkCounter = 1; // Initialize chunk counter
+                for (String chunk : chunks) {
+                    documentMetadata.put("chunk",chunkCounter);
+                    chunksDocs.add(new Document(chunk, documentMetadata)); // Add chunk with metadata
+                    chunkCounter++; // Increment chunk counter
+                }
+            }
         }
-
-        TokenTextSplitter tokenTextSplitter = new TokenTextSplitter();
-        List<String> chunks = tokenTextSplitter.split(content, 1000);
-        List<Document> chunksDocs = chunks.stream().map(chunk -> new Document(chunk)).collect(Collectors.toList());
+        // Accept all the chunks with their metadata
         vectorStore.accept(chunksDocs);
     }
 }
