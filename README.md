@@ -1,4 +1,4 @@
-# Retrieval Augmented Generation
+# Retrieval Augmented Generation with OpenAI
 
 Retrieval-augmented generation (RAG) is a method that improves the precision and dependability of generative AI models by incorporating information obtained from external sources.
 
